@@ -1,3 +1,4 @@
+#include "App.h"
 #include "Main.h"
 #include "Account.h"
 #include "Identifiers.h"
@@ -9,53 +10,65 @@ wxBEGIN_EVENT_TABLE(Main, wxFrame)
 	EVT_LISTBOX(UID::ACCOUNT_LISTBOX, on_listbox_select)
 wxEND_EVENT_TABLE()
 
-Main::Main() : wxFrame(nullptr, wxID_ANY, "Account manager", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX^ wxRESIZE_BORDER | wxTAB_TRAVERSAL) {
+Main::Main() : wxFrame(nullptr, wxID_ANY, "Account manager", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxMAXIMIZE_BOX^ wxRESIZE_BORDER) {
 	// Initialize the dialog popup
 	m_message_dialog = new wxMessageDialog(this, "", "Confirm the following action", wxYES_NO | wxCENTRE | wxSTAY_ON_TOP, wxDefaultPosition);
 
-	// Initialize account list and login GUI elements
-	m_account_list = new wxListBox(this, UID::ACCOUNT_LISTBOX, wxDefaultPosition, wxSize(300, 300));
-	m_login = new wxButton(this, UID::LOGIN_BUTTON, "Login", wxDefaultPosition, wxSize(300, 30));
+	// Initialize frame panels
+	wxPanel* left_panel = new wxPanel(this, wxID_ANY);
+	wxPanel* right_panel = new wxPanel(this, wxID_ANY);
 
-	// Initialize account manager GUI elements
-	m_alias			= new wxTextCtrl(this, UID::ALIAS_TEXTBOX, "");
-	m_username		= new wxTextCtrl(this, UID::USERNAME_TEXTBOX, "");
-	m_password		= new wxTextCtrl(this, UID::PASSWORD_TEXTBOX, "", wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD);
-	m_add_acc		= new wxButton(this, UID::ADD_ACCOUNT_BUTTON, "Add", wxDefaultPosition, wxSize(120, 30));
-	m_remove_acc	= new wxButton(this, UID::REMOVE_ACCOUNT_BUTTON, "Remove");
+	// Initialize account list and login GUI elements
+	m_login			= new wxButton(left_panel, UID::LOGIN_BUTTON, "Login", wxDefaultPosition, wxSize(300, 30));
+	m_account_list	= new wxListBox(left_panel, UID::ACCOUNT_LISTBOX, wxDefaultPosition, wxSize(300, 300));
+	
+
+	// Initialize account information elements
+	m_alias		= new wxTextCtrl(right_panel, UID::ALIAS_TEXTBOX, "");
+	m_username	= new wxTextCtrl(right_panel, UID::USERNAME_TEXTBOX, "");
+	m_password	= new wxTextCtrl(right_panel, UID::PASSWORD_TEXTBOX, "", wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD);
+	m_add_acc	= new wxButton(right_panel, UID::ADD_ACCOUNT_BUTTON, "Add", wxDefaultPosition, wxSize(120, 30));
+	m_remove_acc = new wxButton(right_panel, UID::REMOVE_ACCOUNT_BUTTON, "Remove");
 
 	// Initialize static labels
-	wxStaticText* alias_label		= new wxStaticText(this, wxID_ANY, "Account alias");
-	wxStaticText* username_label	= new wxStaticText(this, wxID_ANY, "Username");
-	wxStaticText* password_label	= new wxStaticText(this, wxID_ANY, "Password");
+	wxStaticText* alias_label = new wxStaticText(right_panel, wxID_ANY, "Account alias");
+	wxStaticText* username_label = new wxStaticText(right_panel, wxID_ANY, "Username");
+	wxStaticText* password_label = new wxStaticText(right_panel, wxID_ANY, "Password");
+
+	// Adjust panel background colors
+	left_panel->SetBackgroundColour(wxColor(171, 171, 171, 255));
+	right_panel->SetBackgroundColour(wxColor(171, 171, 171, 255));
 
 	// Initialize sizers
-	wxBoxSizer* frame_sizer			= new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer* button_sizer		= new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer* account_sizer		= new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer* information_sizer	= new wxBoxSizer(wxVERTICAL);
-	
-	// Append GUI elements to the sizers
-	information_sizer->Add(alias_label, wxSizerFlags(0).Border(wxLEFT | wxRIGHT | wxTOP, 10));
-	information_sizer->Add(m_alias, wxSizerFlags(0).Expand().Border(wxLEFT | wxRIGHT | wxBOTTOM, 10));
-	information_sizer->Add(username_label, wxSizerFlags(0).Border(wxLEFT | wxRIGHT, 10));
-	information_sizer->Add(m_username, wxSizerFlags(0).Expand().Border(wxLEFT | wxRIGHT | wxBOTTOM, 10));
-	information_sizer->Add(password_label, wxSizerFlags(0).Border(wxLEFT | wxRIGHT, 10));
-	information_sizer->Add(m_password, wxSizerFlags(0).Expand().Border(wxLEFT | wxRIGHT | wxBOTTOM, 10));
-	information_sizer->AddSpacer(163);
-	information_sizer->Add(button_sizer);
+	wxBoxSizer* panel_sizer		= new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* info_sizer		= new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* account_sizer	= new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* button_sizer	= new wxBoxSizer(wxHORIZONTAL);
+
+	// Add GUI elements to sizers
+	info_sizer->Add(m_account_list, wxSizerFlags(1).Expand().Border(wxALL, 10));
+	info_sizer->Add(m_login, wxSizerFlags(0).Expand().Border(wxALL, 10));
+
+	account_sizer->Add(alias_label, wxSizerFlags(0).Border(wxLEFT | wxRIGHT | wxTOP, 10));
+	account_sizer->Add(m_alias, wxSizerFlags(0).Expand().Border(wxLEFT | wxRIGHT | wxBOTTOM, 10));
+	account_sizer->Add(username_label, wxSizerFlags(0).Border(wxLEFT | wxRIGHT, 10));
+	account_sizer->Add(m_username, wxSizerFlags(0).Expand().Border(wxLEFT | wxRIGHT | wxBOTTOM, 10));
+	account_sizer->Add(password_label, wxSizerFlags(0).Border(wxLEFT | wxRIGHT, 10));
+	account_sizer->Add(m_password, wxSizerFlags(0).Expand().Border(wxLEFT | wxRIGHT | wxBOTTOM, 10));
 
 	button_sizer->Add(m_add_acc, wxSizerFlags(1).Expand().Border(wxALL, 10));
 	button_sizer->Add(m_remove_acc, wxSizerFlags(1).Expand().Border(wxALL, 10));
-	
-	account_sizer->Add(m_account_list, wxSizerFlags(1).Expand().Border(wxALL, 10));
-	account_sizer->Add(m_login, wxSizerFlags(0).Expand().Border(wxALL, 10));
-	
-	frame_sizer->Add(account_sizer, wxSizerFlags(0).Bottom());
-	frame_sizer->Add(information_sizer, wxSizerFlags(0).Top());
+
+	account_sizer->AddSpacer(163);
+	account_sizer->Add(button_sizer);
+
+	panel_sizer->Add(left_panel, wxSizerFlags(1).Expand().Border(wxRIGHT | wxBOTTOM, 10));
+	panel_sizer->Add(right_panel, wxSizerFlags(0).Expand().Border(wxRIGHT, 10));
 
 	// Apply sizers
-	SetSizerAndFit(frame_sizer);
+	SetSizerAndFit(account_sizer);
+	SetSizerAndFit(info_sizer);
+	SetSizerAndFit(panel_sizer);
 }
 
 
