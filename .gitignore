@@ -1,0 +1,9 @@
+Debug/
+Release/
+*.ico
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+targetver.h
+Resource.h
+Account Manager.rc
