@@ -20,4 +20,6 @@ private:
 public:
 	CRegistry();
 	~CRegistry();
+
+	std::wstring get_value_string(LPCSTR subKey, std::wstring valueName);
 };
