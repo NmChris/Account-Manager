@@ -1,69 +1,55 @@
 #include "Account.h"
-#include "Registry.h"
 
-void Account::init(wxArrayString* account_array) {
-    HKEY legacy_key;
-    LSTATUS legacy_status = RegOpenKeyA(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH_LEGACY, &legacy_key);
-    if (legacy_status == ERROR_SUCCESS) {
-        std::vector<std::wstring> sub_keys = Registry::get_sub_keys(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH_LEGACY);
-        for (const std::wstring& key : sub_keys) {
-            std::wstring username = Registry::get_value_string(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH_LEGACY + key, L"Username");
-            std::wstring password = Registry::get_value_string(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH_LEGACY + key, L"Password");
-            Account::add(key, username, password);
-        }
-        RegDeleteTreeA(legacy_key, NULL);
-        RegDeleteKeyA(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH_LEGACY);
-    }
-
-    std::vector<std::wstring> sub_keys = Registry::get_sub_keys(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH);
-    for (const std::wstring &key : sub_keys) {
-        account_array->Add(Encryption::decrypt(std::string(key.begin(), key.end())));
+void CAccountManager::getAccounts(wxArrayString* accountArray) {
+    std::vector<std::wstring> subKeys = m_accountRegistry.collectSubKeys();
+    for (const std::wstring& key : subKeys) {
+        accountArray->Add(Encryption::decrypt(std::string(key.begin(), key.end())));
     }
 }
 
-void Account::add(const wxString &alias, const wxString &username, const wxString &password) {
-    wxString alias_encrypted = Encryption::encrpyt(alias.ToStdString());
-    HKEY reg_key = Registry::create_key(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH + alias_encrypted.c_str());
-    Registry::set_value_string(reg_key, NULL, "f1", Encryption::encrpyt(username.ToStdString()));
-    Registry::set_value_string(reg_key, NULL, "f2", Encryption::encrpyt(password.ToStdString()));
-    Registry::close_key(reg_key);
+void CAccountManager::addAccount(wxString& alias, wxString& username, wxString& password) {
+    wxString encryptedAlias = Encryption::encrpyt(alias.ToStdString());
+    if (m_accountRegistry.addSubKey(encryptedAlias) == true) {
+        m_accountRegistry.setValue(encryptedAlias, "f1", Encryption::encrpyt(username.ToStdString()));
+        m_accountRegistry.setValue(encryptedAlias, "f2", Encryption::encrpyt(password.ToStdString()));
+    }
 }
 
-void Account::remove(const wxString &alias) {
-    wxString alias_encrypted = Encryption::encrpyt(alias.ToStdString());
-    Registry::delete_key(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH + alias_encrypted.c_str());
+void CAccountManager::removeAccount(wxString& alias) {
+    wxString encryptedAlias = Encryption::encrpyt(alias.ToStdString());
+    m_accountRegistry.deleteKey(encryptedAlias);
 }
 
-wxString Account::get_username(const wxString &alias) {
-    wxString alias_decrypted = Encryption::encrpyt(alias.ToStdString());
-    std::wstring username = Registry::get_value_string(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH + alias_decrypted.c_str(), L"f1");
-    return Encryption::decrypt(std::string(username.begin(), username.end()));
+wxString CAccountManager::getAccountUsername(wxString& alias) {
+    wxString encryptedAlias = Encryption::encrpyt(alias.ToStdString());
+    std::wstring accountUsername = m_accountRegistry.getValueString(encryptedAlias.c_str(), L"f1");
+    return Encryption::decrypt(std::string(accountUsername.begin(), accountUsername.end()));
 }
 
-wxString Account::get_password(const wxString &alias) {
-    wxString alias_decrypted = Encryption::encrpyt(alias.ToStdString());
-    std::wstring password = Registry::get_value_string(HKEY_CURRENT_USER, ACCOUNT_REGISTRY_PATH + alias_decrypted.c_str(), L"f2");
-    return Encryption::decrypt(std::string(password.begin(), password.end()));
+wxString CAccountManager::getAccountPassword(wxString& alias) {
+    wxString encryptedAlias = Encryption::encrpyt(alias.ToStdString());
+    std::wstring accountPassword = m_accountRegistry.getValueString(encryptedAlias.c_str(), L"f2");
+    return Encryption::decrypt(std::string(accountPassword.begin(), accountPassword.end()));
 }
 
-void Account::login(const wxString &username, const wxString &password) {
+void CAccountManager::loginToAccount(wxString &username, wxString &password) {
     // Get the steam.exe path to start the process
-    std::wstring steam_path = Registry::get_value_string(HKEY_CURRENT_USER, STEAM_REGISTRY_PATH, L"SteamExe");
+    std::wstring steamPath = m_steamRegistry.getValueString(NULL, L"SteamExe");
 
     // Check if steam is running by getting it's process ID and shutting it down if it is running
-    DWORD process_id = Registry::get_value_dword(HKEY_CURRENT_USER, STEAM_ACTIVE_PROCESS, L"pid");
-    if (process_id != 0) {
-        HANDLE steam_process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process_id);
-        TerminateProcess(steam_process, 0);
-        CloseHandle(steam_process);
+    DWORD processID = m_steamActiveProcess.getValueDWORD(NULL, L"pid");
+    if (processID != 0) {
+        HANDLE steamProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
+        TerminateProcess(steamProcess, 0);
+        CloseHandle(steamProcess);
     }
 
     // Create a steam process so that we can log in
-    PROCESS_INFORMATION process_info;
-    STARTUPINFO startup_info = { sizeof(startup_info) };
-    wxString command_line = "steam.exe -login " + username + " " + password;
-    if (CreateProcessW(steam_path.c_str(), LPWSTR(command_line.wc_str()), NULL, NULL, FALSE, NULL, NULL, NULL, &startup_info, &process_info)) {
-        CloseHandle(process_info.hProcess);
-        CloseHandle(process_info.hThread);
+    PROCESS_INFORMATION processInfo;
+    STARTUPINFO startupInfo = { sizeof(startupInfo) };
+    wxString commandLine = "steam.exe -login " + username + " " + password;
+    if (CreateProcessW(steamPath.c_str(), LPWSTR(commandLine.wc_str()), NULL, NULL, FALSE, NULL, NULL, NULL, &startupInfo, &processInfo)) {
+        CloseHandle(processInfo.hProcess);
+        CloseHandle(processInfo.hThread);
     }
 }

@@ -1,25 +1,26 @@
 #pragma once
 #include "wx/wx.h"
 
-namespace Registry {
-	void close_key(HKEY key);
-	HKEY create_key(HKEY key, LPCSTR sub_key);
-	void delete_key(HKEY key, LPCSTR sub_key);
-	std::vector<std::wstring> get_sub_keys(HKEY key, LPCSTR sub_key);
-
-	void set_value_dword(HKEY key, LPCSTR sub_key, LPCSTR value_name, DWORD value);
-	void set_value_string(HKEY key, LPCSTR sub_key, LPCSTR value_name, wxString value);
-	DWORD get_value_dword(HKEY key, LPCSTR sub_key, std::wstring value_name);
-	std::wstring get_value_string(HKEY key, LPCSTR sub_key, std::wstring value_name);
-}
-
 class CRegistry {
 private:
 	HKEY m_regKey;
 
 public:
-	CRegistry();
-	~CRegistry();
+	CRegistry(HKEY regKey, LPCSTR subKey) {
+		LSTATUS errorStatus = RegCreateKeyExA(regKey, subKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &m_regKey, NULL);
+		if (errorStatus != ERROR_SUCCESS)
+			std::cout << "Error creating key" << subKey << "\nError: " << errorStatus << std::endl;
+	}
+	
+	void createKey(HKEY regKey, LPCSTR subKey);
 
-	std::wstring get_value_string(LPCSTR subKey, std::wstring valueName);
+	void setValue(LPCSTR subKey, LPCSTR valueName, DWORD value);
+	void setValue(LPCSTR subKey, LPCSTR valueName, wxString value);
+
+	DWORD getValueDWORD(LPCSTR subKey, wxString valueName);
+	std::wstring getValueString(LPCSTR subKey, wxString valueName);
+
+	bool addSubKey(LPCSTR subKey);
+	void deleteKey(LPCSTR subkey);
+	std::vector<std::wstring> collectSubKeys();
 };

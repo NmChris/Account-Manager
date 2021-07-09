@@ -1,109 +1,97 @@
 #include "Registry.h"
 #define MAX_KEY_LENGTH 255
 
-HKEY Registry::create_key(HKEY key, LPCSTR sub_key) {
-    HKEY reg_key = NULL;
-    LSTATUS create_status = RegCreateKeyExA(HKEY_CURRENT_USER, sub_key, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &reg_key, NULL);
-    if (create_status != ERROR_SUCCESS) {
-        throw "Failed to create key " + create_status;
-    }
-    return reg_key;
-}
-
-void Registry::delete_key(HKEY key, LPCSTR sub_key) {
-	LSTATUS delete_status = RegDeleteKeyA(key, sub_key);
-    if (delete_status != ERROR_SUCCESS) {
-        throw "Failed to delete key " + delete_status;
+void CRegistry::createKey(HKEY regKey, LPCSTR subKey) {
+    HKEY resultKey;
+    LSTATUS createStatus = RegCreateKeyExA(regKey, subKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &resultKey, NULL);
+    if (createStatus != ERROR_SUCCESS) {
+        std::cout << "Error creating key: " << subKey << "\n Error code: " << createStatus << std::endl;
     }
 }
 
-void Registry::close_key(HKEY key) {
-    LSTATUS close_status = RegCloseKey(key);
-    if (close_status != ERROR_SUCCESS) {
-        throw "Failed to close key " + close_status;
+bool CRegistry::addSubKey(LPCSTR subKey) {
+    HKEY regSubKey;
+    LSTATUS createStatus = RegCreateKeyExA(m_regKey, subKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &regSubKey, NULL);
+    if (createStatus != ERROR_SUCCESS) {
+        std::cout << "Error creating subkey " << subKey << "\nError: " << createStatus << std::endl;
+        RegCloseKey(regSubKey);
+        return false;
     }
+    return true;
 }
 
-void Registry::set_value_string(HKEY key, LPCSTR sub_key, LPCSTR value_name, wxString value) {
-    LSTATUS set_status = RegSetKeyValueA(key, sub_key, value_name, REG_SZ, value, value.size() + 1);
-    if (set_status != ERROR_SUCCESS) {
-        throw "Failed to set value " + set_status;
-    }
+void CRegistry::deleteKey(LPCSTR subKey) {
+    LSTATUS deleteStatus = RegDeleteKeyA(m_regKey, subKey);
+    if (deleteStatus != ERROR_SUCCESS)
+        std::cout << "Error deleting subkey " << subKey << "\nError: " << deleteStatus << std::endl;
 }
 
-void Registry::set_value_dword(HKEY key, LPCSTR sub_key, LPCSTR value_name, DWORD value) {
-    LSTATUS set_status = RegSetKeyValueA(key, sub_key, value_name, REG_DWORD, (const BYTE*)&value, sizeof(value));
-    if (set_status != ERROR_SUCCESS) {
-        throw "Failed to set value " + set_status;
-    }
+void CRegistry::setValue(LPCSTR subKey, LPCSTR valueName, wxString value) {
+    LSTATUS setStatus = RegSetKeyValueA(m_regKey, subKey, valueName, REG_SZ, value, value.size() + 1);
+    if (setStatus != ERROR_SUCCESS)
+        std::cout << "Error setting string value: " << valueName << "\nError: "<< setStatus << std::endl;
 }
 
-DWORD Registry::get_value_dword(HKEY key, LPCSTR sub_key, std::wstring value_name) {
+void CRegistry::setValue(LPCSTR subKey, LPCSTR valueName, DWORD value) {
+    LSTATUS setStatus = RegSetKeyValueA(m_regKey, subKey, valueName, REG_DWORD, (const BYTE*)&value, sizeof(value));
+    if (setStatus != ERROR_SUCCESS)
+        std::cout << "Error setting DWORD value: " << valueName << "\nError: " << setStatus << std::endl;
+}
+
+DWORD CRegistry::getValueDWORD(LPCSTR subKey, wxString valueName) {
     DWORD result(0);
-    HKEY reg_key = NULL;
-    LSTATUS open_status = RegOpenKeyA(key, sub_key, &reg_key);
-    if (open_status == ERROR_SUCCESS) {
-        DWORD buffer_size(sizeof(DWORD));
-        LSTATUS query_status = RegQueryValueExW(reg_key, value_name.c_str(), 0, NULL, reinterpret_cast<LPBYTE>(&result), &buffer_size);
-        RegCloseKey(reg_key);
-        if (query_status != ERROR_SUCCESS) {
-            throw "Error querying value ", query_status;
-        }
-        return result;
-    } else {
-        throw "Failed opening key ", open_status;
+    DWORD bufferSize(sizeof(DWORD));
+
+    HKEY regKey;
+    LSTATUS openStatus = RegOpenKeyA(m_regKey, subKey, &regKey);
+    if (openStatus != ERROR_SUCCESS) {
+        std::cout << "Error opening key: " << subKey << "\nError: " << openStatus << std::endl;
     }
-    RegCloseKey(reg_key);
-    return 0;
+
+    LSTATUS queryStatus = RegQueryValueExW(regKey, valueName.c_str(), 0, NULL, reinterpret_cast<LPBYTE>(&result), &bufferSize);
+    if (queryStatus != ERROR_SUCCESS)
+        std::cout << "Error getting dword value: " << valueName << "\nError: " << queryStatus << std::endl;
+
+    return result;
 }
 
-std::wstring Registry::get_value_string(HKEY key, LPCSTR sub_key, std::wstring value_name) {
-    WCHAR buffer[512];
-    HKEY reg_key = NULL;
-    LSTATUS open_status = RegOpenKeyA(key, sub_key, &reg_key);
-    if (open_status == ERROR_SUCCESS) {
-        DWORD buffer_size = sizeof(buffer);
-        LSTATUS query_status = RegQueryValueExW(reg_key, value_name.c_str(), 0, NULL, LPBYTE(buffer), &buffer_size);
-        if (query_status != ERROR_SUCCESS) {
-            throw "Error querying value ", query_status;
-        }
-        RegCloseKey(reg_key);
-        return buffer;
-    } else {
-        throw "Failed opening key ", open_status;
+std::wstring CRegistry::getValueString(LPCSTR subKey, wxString valueName) {
+    WCHAR result[512];
+    DWORD bufferSize = sizeof(result);
+
+    HKEY regKey;
+    LSTATUS openStatus = RegOpenKeyA(m_regKey, subKey, &regKey);
+    if (openStatus != ERROR_SUCCESS) {
+        std::cout << "Error opening key: " << subKey << "\nError: " << openStatus << std::endl;
     }
-    RegCloseKey(reg_key);
-    return buffer;
+
+    LSTATUS queryStatus = RegQueryValueExW(regKey, valueName.c_str(), 0, NULL, LPBYTE(result), &bufferSize);
+    if (queryStatus != ERROR_SUCCESS)
+        std::cout << "Error getting dword value: " << valueName << "\nError: " << queryStatus << std::endl;
+
+    return result;
 }
 
-std::vector<std::wstring> Registry::get_sub_keys(HKEY key, LPCSTR sub_key) {
-    HKEY reg_key = NULL;
-    std::vector<std::wstring> sub_key_list;
-    LSTATUS open_status = RegOpenKeyA(key, sub_key, &reg_key);
-    if (open_status != ERROR_SUCCESS) {
-        reg_key = create_key(key, sub_key);
+std::vector<std::wstring> CRegistry::collectSubKeys() {
+    TCHAR       keyName[MAX_KEY_LENGTH];   // Buffer for sub key name
+    DWORD       keySize;                   // Size of name string
+    DWORD       subKeys = 0;               // Number of subkeys
+    DWORD       maxSubKeys;                // Longest subkey size
+    FILETIME    lastWriteTime;            // Last write time
+
+    std::vector<std::wstring> subKeyList;
+    LSTATUS queryStatus = RegQueryInfoKeyA(m_regKey, NULL, NULL, NULL, &subKeys, &maxSubKeys, NULL, NULL, NULL, NULL, NULL, &lastWriteTime);
+
+    if (queryStatus != ERROR_SUCCESS)
+        std::cout << "Error query key " << "\nError: " << queryStatus << std::endl;
+    if (subKeys <= 0)
+        return subKeyList;
+
+    for (DWORD i = 0; i < subKeys; i++) {
+        keySize = MAX_KEY_LENGTH;
+        LSTATUS enumStatus = RegEnumKeyEx(m_regKey, i, keyName, &keySize, NULL, NULL, NULL, &lastWriteTime);
+        if (enumStatus == ERROR_SUCCESS)
+            subKeyList.push_back(keyName);
     }
-    TCHAR       key_name[MAX_KEY_LENGTH];   // Buffer for sub key name
-    DWORD       key_size;                   // Size of name string
-    DWORD       sub_keys = 0;               // Number of subkeys
-    DWORD       max_sub_key;                // Longest subkey size
-    FILETIME    last_write_Time;            // Last write time
-    LSTATUS query_status = RegQueryInfoKeyA(reg_key, NULL, NULL, NULL, &sub_keys, &max_sub_key, NULL, NULL, NULL, NULL, NULL, &last_write_Time);
-    if (query_status != ERROR_SUCCESS) {
-        RegCloseKey(reg_key);
-        throw "Error querying info ";
-    }
-    if (sub_key <= 0) {
-        RegCloseKey(reg_key);
-        return sub_key_list;
-    }
-    for (DWORD i = 0; i < sub_keys; i++) {
-        key_size = MAX_KEY_LENGTH;
-        LSTATUS enum_status = RegEnumKeyEx(reg_key, i, key_name, &key_size, NULL, NULL, NULL, &last_write_Time);
-        if (enum_status == ERROR_SUCCESS) {
-            sub_key_list.push_back(key_name);
-        }
-    }
-    RegCloseKey(reg_key);
-    return sub_key_list;
+    return subKeyList;
 }
