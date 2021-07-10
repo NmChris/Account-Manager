@@ -23,14 +23,14 @@ wxMultipleTextDialog::wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxSt
 	wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 
 	// Append and apply sizers to the dialog
-	dialogSizer->Add(aliasLabel);
-	dialogSizer->Add(aliasText);
-	dialogSizer->Add(usernameLabel);
-	dialogSizer->Add(usernameText);
-	dialogSizer->Add(passwordLabel);
-	dialogSizer->Add(passwordText);
-	buttonSizer->Add(m_yesButton, wxSizerFlags(0).Border());
-	buttonSizer->Add(m_noButton, wxSizerFlags(0).Border());
+	dialogSizer->Add(aliasLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT | wxTOP));
+	dialogSizer->Add(aliasText, wxSizerFlags(1).Border());
+	dialogSizer->Add(usernameLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT | wxTOP));
+	dialogSizer->Add(usernameText, wxSizerFlags(1).Border());
+	dialogSizer->Add(passwordLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT | wxTOP));
+	dialogSizer->Add(passwordText, wxSizerFlags(1).Border());
+	buttonSizer->Add(m_yesButton, wxSizerFlags(1).Border());
+	buttonSizer->Add(m_noButton, wxSizerFlags(1).Border());
 	dialogSizer->Add(buttonSizer);
 
 	SetSizerAndFit(dialogSizer);
