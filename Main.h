@@ -8,7 +8,7 @@
 class Main : public wxFrame {
 public:
 	Main();
-	CAccountManager m_accountManager;
+	CAccountManager m_accountManager = CAccountManager();
 private:
 	wxListBox* m_accountList = nullptr;
 	wxMessageDialog* m_confirmationDialog = nullptr;

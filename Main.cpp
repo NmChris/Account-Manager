@@ -20,10 +20,10 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "Account manager", wxDefaultPosition, 
 	m_accountManager.getAccounts(&accountArray);
 
 	// Initializes dialogs
+	m_accountInfoDialog = new wxMultipleTextDialog(this, UID::DIALOG_ACCOUNT_INFO, "Edit account");
 	m_confirmationDialog	= new wxMessageDialog(this, "Confirmation text", "Confirmation", wxYES_NO | wxCENTRE | wxSTAY_ON_TOP);
 	m_notificationDialog	= new wxMessageDialog(this, "Notification text", "Notification", wxOK | wxCENTRE);
-	m_accountInfoDialog		= new wxMultipleTextDialog(this, UID::DIALOG_ACCOUNT_INFO, "Edit account");
-
+	
 	// Create and add items to the toolbar
 	wxToolBar* actionToolbar = CreateToolBar();
 	actionToolbar->AddTool(wxID_ADD, "Add", wxArtProvider::GetBitmap(wxART_PLUS));
@@ -37,12 +37,10 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "Account manager", wxDefaultPosition, 
 	// Adjust panel background colors
 	this->SetBackgroundColour(wxColor(171, 171, 171, 255));
 
-	// Initialize sizers
+	// Initialize sizer and apply sizers
 	wxBoxSizer* accountSizer = new wxBoxSizer(wxVERTICAL);
 	accountSizer->Add(m_accountList, wxSizerFlags(1).Border());
 	accountSizer->Add(m_loginButton, wxSizerFlags(0).Border(wxLEFT | wxRIGHT | wxBOTTOM));
-
-	// Apply sizers
 	SetSizerAndFit(accountSizer);
 }
 
@@ -66,9 +64,7 @@ void Main::OnToolAdd(wxCommandEvent& event) {
 		// Set information in account listbox
 	}
 	if (m_accountInfoDialog->ShowModal() == wxID_YES) {
-		wxString accountAlias = m_accountInfoDialog->GetAliasValue();
-		wxString accountUsername = m_accountInfoDialog->GetUsernameValue();
-		wxString accountPassword = m_accountInfoDialog->getPasswordValue();
+		auto [accountAlias, accountUsername, accountPassword] = m_accountInfoDialog->GetValue();
 		if (accountAlias.length() > 0 && accountUsername.length() > 0 && accountPassword.length() > 0) {
 			if (m_accountList->FindString(accountAlias) == -1) {
 				m_accountList->AppendString(accountAlias);

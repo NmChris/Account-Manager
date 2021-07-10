@@ -29,6 +29,14 @@ public:
 		return passwordText->GetValue();
 	}
 
+	std::tuple<wxString, wxString, wxString> GetValue() {
+		return std::make_tuple(
+			aliasText->GetValue(), 
+			usernameText->GetValue(), 
+			passwordText->GetValue()
+		);
+	}
+
 private:
 	wxTextCtrl* aliasText		= nullptr;
 	wxTextCtrl* usernameText	= nullptr;
