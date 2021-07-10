@@ -9,7 +9,7 @@ public:
 		aliasText->SetValue(alias);
 	}
 
-	wxString GetAliasText() {
+	wxString GetAliasValue() {
 		return aliasText->GetValue();
 	}
 

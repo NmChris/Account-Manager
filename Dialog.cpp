@@ -7,11 +7,11 @@ wxBEGIN_EVENT_TABLE(wxMultipleTextDialog, wxDialog)
 	EVT_BUTTON(UID::DIALOG_NO_BUTTON, OnNoButtonClick)
 wxEND_EVENT_TABLE()
 
-wxMultipleTextDialog::wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title) : wxDialog(parent, id, title) {
+wxMultipleTextDialog::wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title) : wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize) {
 	// Create elements for the dialogue
-	aliasText					= new wxTextCtrl(this, wxID_ANY);
-	usernameText				= new wxTextCtrl(this, wxID_ANY);
-	passwordText				= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD);
+	aliasText					= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25));
+	usernameText				= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25));
+	passwordText				= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25), wxTE_PASSWORD);
 	wxButton* m_yesButton		= new wxButton(this, UID::DIALOG_YES_BUTTON, "Yes");
 	wxButton* m_noButton		= new wxButton(this, UID::DIALOG_NO_BUTTON, "No");
 	wxStaticText* aliasLabel	= new wxStaticText(this, wxID_ANY, "Account alias");
