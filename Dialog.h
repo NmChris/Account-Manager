@@ -31,11 +31,20 @@ public:
 		return m_passwordText->GetValue();
 	}
 
-	std::tuple<wxString, wxString, wxString> GetValue() {
+	void SetDescriptionValue(wxString description) {
+		m_descriptionText->SetValue(description);
+	}
+
+	wxString getDescriptionValue() {
+		return m_descriptionText->GetValue();
+	}
+
+	std::tuple<wxString, wxString, wxString, wxString> GetValue() {
 		return std::make_tuple(
-			m_aliasText->GetValue(), 
-			m_usernameText->GetValue(), 
-			m_passwordText->GetValue()
+			m_aliasText->GetValue(),
+			m_usernameText->GetValue(),
+			m_passwordText->GetValue(),
+			m_descriptionText->GetValue()
 		);
 	}
 
@@ -52,6 +61,7 @@ private:
 	wxTextCtrl* m_aliasText		= nullptr;
 	wxTextCtrl* m_usernameText	= nullptr;
 	wxTextCtrl* m_passwordText	= nullptr;
+	wxTextCtrl* m_descriptionText = nullptr;
 
 	void OnYesButtonClick(wxCommandEvent& event);
 	void OnNoButtonClick(wxCommandEvent& event);
