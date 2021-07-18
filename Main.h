@@ -11,16 +11,18 @@ class Main : public wxFrame {
 public:
 	Main();
 private:
-	wxButton* m_loginButton = nullptr;
-	wxListBox* m_accountList = nullptr;
+	wxButton* m_loginButton		= nullptr;
+	wxListBox* m_accountList	= nullptr;
 
-	wxMessageDialog* m_confirmationDialog = nullptr;
-	wxMessageDialog* m_notificationDialog = nullptr;
-	wxMessageDialog* m_displayInfoDialog = nullptr;
-	wxMultipleTextDialog* m_accountInfoDialog = nullptr;
+	wxMessageDialog* m_confirmationDialog		= nullptr;
+	wxMessageDialog* m_notificationDialog		= nullptr;
+	wxMessageDialog* m_displayInfoDialog		= nullptr;
+	wxMultipleTextDialog* m_accountInfoDialog	= nullptr;
+	wxMultipleTextDialog* m_accountEntryDialog = nullptr;
 	
-	wxColor panelBackgroundColor = wxColor(35, 35, 35, 255);
-	wxColor menuItemHoverColor = wxColor(60, 60, 60, 255);
+	
+	wxColor panelBackgroundColor	= wxColor(35, 35, 35, 255);
+	wxColor menuItemHoverColor		= wxColor(60, 60, 60, 255);
 	wxColor menuItemBackgroundColor = wxColor(50, 50, 50, 255);
 	wxColor menuItemForegroundColor = wxColor(225, 225, 225, 255);
 
@@ -29,6 +31,7 @@ private:
 	void OnMenuEdit(wxCommandEvent& event);
 	void OnMenuRemove(wxCommandEvent& event);
 	void OnMenuInfo(wxCommandEvent& event);
+	void OnMenuCopyInfo(wxCommandEvent& event);
 	void OnAccountDoubleClick(wxCommandEvent& event);
 	void OnLoginMouseOver(wxMouseEvent& event);
 	void OnLoginMouseLeave(wxMouseEvent& event);

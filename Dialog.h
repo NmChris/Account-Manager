@@ -5,7 +5,7 @@
 
 class wxMultipleTextDialog : public wxDialog {
 public:
-	wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title);
+	wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title, bool readOnly = false);
 
 	void SetAliasValue(wxString alias) {
 		m_aliasText->SetValue(alias);
@@ -56,12 +56,17 @@ public:
 		return this->ShowModal();
 	}
 
+	wxColor panelBackgroundColor	= wxColor(35, 35, 35, 255);
+	wxColor menuItemHoverColor		= wxColor(60, 60, 60, 255);
+	wxColor menuItemBackgroundColor = wxColor(50, 50, 50, 255);
+	wxColor menuItemForegroundColor = wxColor(225, 225, 225, 255);
+
 private:
 	wxWindow*	m_parent;
-	wxTextCtrl* m_aliasText		= nullptr;
-	wxTextCtrl* m_usernameText	= nullptr;
-	wxTextCtrl* m_passwordText	= nullptr;
-	wxTextCtrl* m_descriptionText = nullptr;
+	wxTextCtrl* m_aliasText			= nullptr;
+	wxTextCtrl* m_usernameText		= nullptr;
+	wxTextCtrl* m_passwordText		= nullptr;
+	wxTextCtrl* m_descriptionText	= nullptr;
 
 	void OnYesButtonClick(wxCommandEvent& event);
 	void OnNoButtonClick(wxCommandEvent& event);

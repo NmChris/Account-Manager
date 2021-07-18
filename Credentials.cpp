@@ -25,6 +25,8 @@ std::tuple<wxString, wxString, wxString, wxString> ReadCredentials(wxString alia
 void WriteCredentials(wxString alias, wxString username, wxString password, wxString description) {
 	std::string targetName = "Account Manager:" + alias.ToStdString();
 
+	std::cout << "Password: " << password.c_str().AsChar() << std::endl;
+
 	CREDENTIALA credentials { 0 };
 	credentials.Flags				= 0;
 	credentials.Type				= CRED_TYPE_GENERIC;
@@ -34,7 +36,7 @@ void WriteCredentials(wxString alias, wxString username, wxString password, wxSt
 	credentials.Comment				= LPSTR(description.c_str().AsChar());
 	credentials.UserName			= LPSTR(username.c_str().AsChar());
 	credentials.CredentialBlob		= LPBYTE(password.c_str().AsChar());
-	credentials.CredentialBlobSize	= password.length();
+	credentials.CredentialBlobSize	= strlen(password.ToStdString().c_str()) + 1;
 	CredWriteA(&credentials, 0);
 }
 
@@ -50,8 +52,6 @@ wxArrayString EnumerateCredentials() {
 	
 	wxArrayString accountArray = wxArrayString();
 	for (int i = 0; i < count; i++) {
-		std::cout << credentials[i]->TargetName << std::endl;
-		std::cout << credentials[i]->Comment << std::endl;
 		accountArray.Add(credentials[i]->TargetAlias);
 	}
 	return accountArray;
