@@ -1,20 +1,19 @@
-#include "wx/wx.h"
 #include "Dialog.h"
-#include "Identifiers.h"
+
 
 wxBEGIN_EVENT_TABLE(wxMultipleTextDialog, wxDialog)
 	EVT_BUTTON(UID::DIALOG_YES_BUTTON, OnYesButtonClick)
 	EVT_BUTTON(UID::DIALOG_NO_BUTTON, OnNoButtonClick)
 wxEND_EVENT_TABLE()
 
-wxMultipleTextDialog::wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title) : wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize) {
+wxMultipleTextDialog::wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title) : wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize), m_parent{parent} {
 	// Create elements for the dialogue
-	aliasText					= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25));
-	usernameText				= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25));
-	passwordText				= new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25), wxTE_PASSWORD);
-	wxButton* m_yesButton		= new wxButton(this, UID::DIALOG_YES_BUTTON, "Yes");
-	wxButton* m_noButton		= new wxButton(this, UID::DIALOG_NO_BUTTON, "No");
-	wxStaticText* aliasLabel	= new wxStaticText(this, wxID_ANY, "Account alias");
+	m_aliasText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25));
+	m_usernameText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25));
+	m_passwordText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, 25), wxTE_PASSWORD);
+	wxButton* m_yesButton = new wxButton(this, UID::DIALOG_YES_BUTTON, "Yes");
+	wxButton* m_noButton = new wxButton(this, UID::DIALOG_NO_BUTTON, "No");
+	wxStaticText* aliasLabel = new wxStaticText(this, wxID_ANY, "Account alias");
 	wxStaticText* usernameLabel = new wxStaticText(this, wxID_ANY, "Username");
 	wxStaticText* passwordLabel = new wxStaticText(this, wxID_ANY, "Password");
 
@@ -24,11 +23,11 @@ wxMultipleTextDialog::wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxSt
 
 	// Append and apply sizers to the dialog
 	dialogSizer->Add(aliasLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT | wxTOP));
-	dialogSizer->Add(aliasText, wxSizerFlags(1).Border());
+	dialogSizer->Add(m_aliasText, wxSizerFlags(1).Border());
 	dialogSizer->Add(usernameLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT | wxTOP));
-	dialogSizer->Add(usernameText, wxSizerFlags(1).Border());
+	dialogSizer->Add(m_usernameText, wxSizerFlags(1).Border());
 	dialogSizer->Add(passwordLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT | wxTOP));
-	dialogSizer->Add(passwordText, wxSizerFlags(1).Border());
+	dialogSizer->Add(m_passwordText, wxSizerFlags(1).Border());
 	buttonSizer->Add(m_yesButton, wxSizerFlags(1).Border());
 	buttonSizer->Add(m_noButton, wxSizerFlags(1).Border());
 	dialogSizer->Add(buttonSizer);

@@ -4,11 +4,11 @@
 #include "Dialog.h"
 #include "Identifiers.h"
 #include "wx/artprov.h"
+#include "Credentials.h"
 
 class Main : public wxFrame {
 public:
 	Main();
-	CAccountManager m_accountManager = CAccountManager();
 private:
 	wxListBox* m_accountList = nullptr;
 	wxMessageDialog* m_confirmationDialog = nullptr;

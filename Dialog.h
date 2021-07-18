@@ -1,46 +1,57 @@
 #pragma once
 #include "wx/wx.h"
+#include "Identifiers.h"
+
 
 class wxMultipleTextDialog : public wxDialog {
 public:
 	wxMultipleTextDialog(wxWindow* parent, wxWindowID id, wxString title);
 
 	void SetAliasValue(wxString alias) {
-		aliasText->SetValue(alias);
+		m_aliasText->SetValue(alias);
 	}
 
 	wxString GetAliasValue() {
-		return aliasText->GetValue();
+		return m_aliasText->GetValue();
 	}
 
 	void SetUsernameValue(wxString username) {
-		usernameText->SetValue(username);
+		m_usernameText->SetValue(username);
 	}
 
 	wxString GetUsernameValue() {
-		return usernameText->GetValue();
+		return m_usernameText->GetValue();
 	}
 
 	void SetPasswordValue(wxString password) {
-		passwordText->SetValue(password);
+		m_passwordText->SetValue(password);
 	}
 
 	wxString getPasswordValue() {
-		return passwordText->GetValue();
+		return m_passwordText->GetValue();
 	}
 
 	std::tuple<wxString, wxString, wxString> GetValue() {
 		return std::make_tuple(
-			aliasText->GetValue(), 
-			usernameText->GetValue(), 
-			passwordText->GetValue()
+			m_aliasText->GetValue(), 
+			m_usernameText->GetValue(), 
+			m_passwordText->GetValue()
 		);
 	}
 
+	int ShowPositionedModal() {
+		wxPoint parentPosition = m_parent->GetPosition();
+		parentPosition.x = parentPosition.x + (m_parent->GetSize().x / 2 - this->GetSize().x / 2);
+		parentPosition.y = parentPosition.y + (m_parent->GetSize().y / 2 - this->GetSize().y / 2);
+		this->SetPosition(parentPosition);
+		return this->ShowModal();
+	}
+
 private:
-	wxTextCtrl* aliasText		= nullptr;
-	wxTextCtrl* usernameText	= nullptr;
-	wxTextCtrl* passwordText	= nullptr;
+	wxWindow*	m_parent;
+	wxTextCtrl* m_aliasText		= nullptr;
+	wxTextCtrl* m_usernameText	= nullptr;
+	wxTextCtrl* m_passwordText	= nullptr;
 
 	void OnYesButtonClick(wxCommandEvent& event);
 	void OnNoButtonClick(wxCommandEvent& event);
