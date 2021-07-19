@@ -13,6 +13,9 @@ std::tuple<wxString, wxString, wxString, wxString> ReadCredentials(wxString alia
 			"Empty description"
 		};
 	} else {
+		if (credentials->Comment == nullptr) {
+			credentials->Comment = LPSTR("");
+		}
 		return {
 			std::string(credentials->TargetAlias),
 			std::string(credentials->UserName),
@@ -24,8 +27,6 @@ std::tuple<wxString, wxString, wxString, wxString> ReadCredentials(wxString alia
 
 void WriteCredentials(wxString alias, wxString username, wxString password, wxString description) {
 	std::string targetName = "Account Manager:" + alias.ToStdString();
-
-	std::cout << "Password: " << password.c_str().AsChar() << std::endl;
 
 	CREDENTIALA credentials { 0 };
 	credentials.Flags				= 0;

@@ -16,7 +16,6 @@ void LoginSteam(wxString username, wxString password) {
     PROCESS_INFORMATION processInfo;
     STARTUPINFOA startupInfo = { sizeof(startupInfo) };
 	std::string commandLine = std::format("steam.exe -login {} {}", username.ToStdString(), password.ToStdString());
-	std::cout << commandLine << std::endl;
     if (CreateProcessA(steamExePath.c_str(), LPSTR(commandLine.c_str()), NULL, NULL, FALSE, NULL, NULL, NULL, &startupInfo, &processInfo)) {
         CloseHandle(processInfo.hProcess);
         CloseHandle(processInfo.hThread);

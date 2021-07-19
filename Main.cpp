@@ -124,8 +124,7 @@ void Main::OnMenuEdit(wxCommandEvent& event) {
 					WriteCredentials(accountAlias, accountUsername, accountPassword, accountDescription);
 					UpdateDialogText(m_notificationDialog, "Account added", accountAlias + " has been added to your account list.");
 					m_notificationDialog->ShowModal();
-				}
-				else {
+				} else {
 					m_confirmationDialog->SetTitle("Edit account");
 					m_confirmationDialog->SetMessage("Are you sure you want to edit " + accountAlias + "?");
 					if (m_confirmationDialog->ShowModal() == wxID_YES) {
@@ -165,8 +164,7 @@ void Main::OnMenuInfo(wxCommandEvent& event) {
 	if (selectedAlias == "") {
 		UpdateDialogText(m_notificationDialog, "No account selected", "You must select an account to display info.");
 		m_notificationDialog->ShowModal();
-	}
-	else {
+	} else {
 		auto [accountAlias, accountUsername, accountPassword, accountDescription] = ReadCredentials(selectedAlias);
 		m_accountInfoDialog->SetAliasValue(accountAlias);
 		m_accountInfoDialog->SetUsernameValue(accountUsername);
